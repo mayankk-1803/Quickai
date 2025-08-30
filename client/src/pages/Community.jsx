@@ -55,8 +55,7 @@ const Community = () => {
 
   return !loading ? (
 
-    <div className='flex-1 h-full flex flex-col gap-4 p-6'>
-      Creations
+    <div className="flex-1 h-full flex flex-col gap-4 p-6 transition-all duration-300">
       <div className='bg-white h-full w-full rounded-xl overflow-y-scroll'>
         {creations.map((creation, index)=>(
           <div key={index} className='relative group inline-block pl-3 pt-3 w-full sm:max-w-1/2 lg:max-w-1/3'>
