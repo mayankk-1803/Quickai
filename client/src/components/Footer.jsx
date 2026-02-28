@@ -16,20 +16,20 @@ export default function Footer() {
                     <a href="#" className="font-medium text-gray-500 hover:text-black transition-all">
                         Home
                     </a>
-                    <a href="#" className="font-medium text-gray-500 hover:text-black transition-all">
+                    {/* <a href="#" className="font-medium text-gray-500 hover:text-black transition-all">
                         About
-                    </a>
+                    </a> */}
                     <a href="#" className="font-medium text-gray-500 hover:text-black transition-all">
                         Services
                     </a>
-                    <a href="#" className="font-medium text-gray-500 hover:text-black transition-all">
+                    {/* <a href="#" className="font-medium text-gray-500 hover:text-black transition-all">
                         Contact
-                    </a>
-                    <a href="#" className="font-medium text-gray-500 hover:text-black transition-all">
+                    </a> */}
+                    {/* <a href="#" className="font-medium text-gray-500 hover:text-black transition-all">
                         Help
-                    </a>
+                    </a> */}
                 </div>
-                <div className="flex items-center gap-4 mt-8 text-indigo-500">
+                {/* <div className="flex items-center gap-4 mt-8 text-indigo-500">
                     <a href="#" className="hover:-translate-y-0.5 transition-all duration-300">
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
@@ -57,8 +57,8 @@ export default function Footer() {
                             <path d="M9 18c-4.51 2-5-2-7-2" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                         </svg>
                     </a>
-                </div>
-                <p className="mt-8 text-center">Copyright © 2025 <a href="https://prebuiltui.com">PrebuiltUI</a>. All rights reservered.</p>
+                </div> */}
+                <p className="mt-8 text-center">Copyright © 2026 Quick-ai. All rights reservered.</p>
             </footer>
         </>
     );
