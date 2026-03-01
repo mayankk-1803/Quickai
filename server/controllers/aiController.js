@@ -7,9 +7,14 @@ import FormData from "form-data";
 import fs from 'fs'
 import pdf from 'pdf-parse/lib/pdf-parse.js'
 
+// const AI = new OpenAI({
+//   apiKey: process.env.GEMINI_API_KEY,
+//   baseURL: "https://generativelanguage.googleapis.com/v1beta/openai/",
+// });
+
 const AI = new OpenAI({
-  apiKey: process.env.GEMINI_API_KEY,
-  baseURL: "https://generativelanguage.googleapis.com/v1beta/openai/",
+ apiKey: process.env.GROQ_API_KEY,
+ baseURL: "https://api.groq.com/openai/v1"
 });
 
 export const generateArticle = async (req, res) => {
@@ -26,17 +31,29 @@ export const generateArticle = async (req, res) => {
       });
     }
 
+    // const response = await AI.chat.completions.create({
+    //   model: "gemini-2.0-flash",
+    //   messages: [
+    //     {
+    //       role: "user",
+    //       content: prompt,
+    //     },
+    //   ],
+    //   temperature: 0.7,
+    //   max_tokens: length,
+    // });
+
     const response = await AI.chat.completions.create({
-      model: "gemini-2.0-flash",
-      messages: [
-        {
-          role: "user",
-          content: prompt,
-        },
-      ],
-      temperature: 0.7,
-      max_tokens: length,
-    });
+  model: "llama-3.1-8b-instant",
+  messages: [
+    {
+      role: "user",
+      content: prompt,
+    },
+  ],
+  temperature: 0.7,
+  max_tokens: Number(length) || 800,
+});
 
     const content = response.choices[0].message.content
 
@@ -69,17 +86,29 @@ export const generateBlogTitle = async (req, res) => {
       });
     }
 
+    // const response = await AI.chat.completions.create({
+    //   model: "gemini-2.0-flash",
+    //   messages: [
+    //     {
+    //       role: "user",
+    //       content: prompt,
+    //     },
+    //   ],
+    //   temperature: 0.7,
+    //   max_tokens: 150,
+    // });
+
     const response = await AI.chat.completions.create({
-      model: "gemini-2.0-flash",
-      messages: [
-        {
-          role: "user",
-          content: prompt,
-        },
-      ],
-      temperature: 0.7,
-      max_tokens: 150,
-    });
+  model: "llama-3.1-8b-instant",
+  messages: [
+    {
+      role: "user",
+      content: prompt,
+    },
+  ],
+  temperature: 0.7,
+  max_tokens: 800,
+});
 
     const content = response.choices[0].message.content
 
@@ -194,6 +223,49 @@ export const removeImageObject = async (req, res) => {
   }
 };
 
+// export const resumeReview = async (req, res) => {
+//   try {
+//     const { userId } = req.auth();
+//     const resume = req.file;
+//     const plan = req.plan;
+
+//     if (plan !== "premium") {
+//       return res.json({
+//         success: false,
+//         message: "This feature is only available for premium subscriptions",
+//       });
+//     }
+
+//     if (resume.size > 10 * 1024 * 1024) {
+//       return res.json({success: false, message: 'Resume file size exceeds..'})
+//     }
+
+//     const dataBuffer = fs.readFileSync(resume.path)
+//     const pdfData = await pdf(dataBuffer);
+
+//     const prompt = `Review the following resume and provide constructive feedback on its strengths, weaknesses, and areas for improvements. Resume Content:\n\n${pdfData.text}`
+//     const response = await AI.chat.completions.create({
+//       model: "gemini-2.0-flash",
+//       messages: [
+//         {
+//           role: "user",
+//           content: prompt,
+//         },
+//       ],
+//       temperature: 0.7,
+//       max_tokens: 1000,
+//     });
+
+//     const content = response.choices[0].message.content
+
+//     await sql` INSERT INTO creations (user_id, prompt, content, type) VALUES (${userId}, 'Review the uploaded resume', ${content},'resume-review')`;
+
+//     res.json({success: true, content})
+//   } catch (error) {
+//       res.status(500).json({ success: false, message: error.message });
+//   }
+// };
+
 export const resumeReview = async (req, res) => {
   try {
     const { userId } = req.auth();
@@ -208,15 +280,31 @@ export const resumeReview = async (req, res) => {
     }
 
     if (resume.size > 10 * 1024 * 1024) {
-      return res.json({success: false, message: 'Resume file size exceeds..'})
+      return res.json({
+        success: false,
+        message: "Resume file size exceeds.."
+      });
     }
 
-    const dataBuffer = fs.readFileSync(resume.path)
+    // Read PDF
+    const dataBuffer = fs.readFileSync(resume.path);
     const pdfData = await pdf(dataBuffer);
 
-    const prompt = `Review the following resume and provide constructive feedback on its strengths, weaknesses, and areas for improvements. Resume Content:\n\n${pdfData.text}`
+    const prompt = `
+Review the following resume and provide:
+
+1. Strengths
+2. Weaknesses
+3. Suggestions for improvement
+4. Overall rating out of 10
+
+Resume Content:
+${pdfData.text}
+`;
+
+    // GROQ AI REQUEST
     const response = await AI.chat.completions.create({
-      model: "gemini-2.0-flash",
+      model: "llama-3.1-8b-instant",
       messages: [
         {
           role: "user",
@@ -224,15 +312,28 @@ export const resumeReview = async (req, res) => {
         },
       ],
       temperature: 0.7,
-      max_tokens: 1000,
+      max_tokens: 1200,
     });
 
-    const content = response.choices[0].message.content
+    const content = response.choices[0].message.content;
 
-    await sql` INSERT INTO creations (user_id, prompt, content, type) VALUES (${userId}, 'Review the uploaded resume', ${content},'resume-review')`;
+    await sql`
+      INSERT INTO creations (user_id, prompt, content, type)
+      VALUES (${userId}, 'Review the uploaded resume', ${content}, 'resume-review')
+    `;
 
-    res.json({success: true, content})
+    res.json({
+      success: true,
+      content
+    });
+
   } catch (error) {
-      res.status(500).json({ success: false, message: error.message });
+
+    console.log("Resume Review Error:", error);
+
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
   }
 };
